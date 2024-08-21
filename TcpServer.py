@@ -4,7 +4,7 @@ import requests
 
 # TCP Server configuration
 TCP_IP = os.environ.get('TCP_IP', '0.0.0.0')  # Listen on all interfaces
-TCP_PORT = int(os.environ.get('PORT', 8080))  # Use PORT environment variable or default to 8080
+TCP_PORT = int(os.environ.get('PORT', 8000))  # Use PORT environment variable or default to 8080
 BUFFER_SIZE = 1024
 
 # HTTP endpoint
