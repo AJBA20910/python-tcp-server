@@ -1,0 +1,7 @@
+{
+    "runtime": {
+      "majorVersion": "3.6.0"
+    },
+    "command": "python TcpServer.py",
+    "notes": "Simple TCP Service"
+  } 
