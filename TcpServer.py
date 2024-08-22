@@ -1,44 +1,49 @@
-import os
 import socket
 import requests
 
-# TCP Server configuration
-TCP_IP = os.environ.get('TCP_IP', '0.0.0.0')  # Listen on all interfaces
-TCP_PORT = int(os.environ.get('PORT', 8000))  # Use PORT environment variable or default to 8080
-BUFFER_SIZE = 1024
+# Define the server address and port
+server_address = ('0.0.0.0', 8000)  # Bind to all interfaces on port 8000
+http_endpoint = 'https://react-app-vwyl.onrender.com/gps'  # Replace with your actual HTTP endpoint
 
-# HTTP endpoint
-HTTP_ENDPOINT = os.environ.get('HTTP_ENDPOINT', 'localhost')
-HTTP_PORT = os.environ.get('HTTP_PORT', '8081')
-PATH = '/gps'
+# Create a TCP/IP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Create TCP socket
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((TCP_IP, TCP_PORT))
-server_socket.listen(1)
+# Bind the socket to the server address and start listening
+sock.bind(server_address)
+sock.listen(5)  # Allow up to 5 queued connections
 
-print("TCP Server listening on {}:{}".format(TCP_IP, TCP_PORT))
+print(f"Server is listening on {server_address}")
 
-while True:
-    # Accept incoming connection
-    conn, addr = server_socket.accept()
-    print('Connection address:', addr)
-
-    # Receive data from client
-    data = conn.recv(BUFFER_SIZE)
-    if not data:
-        break
-    
-    # Assuming data is in JSON format
-    json_data = data.decode('utf-8')
-
-    # Make HTTP request
-    try:
-        print(json_data)
-        print('http://' + HTTP_ENDPOINT + ':' + HTTP_PORT + PATH, json=json_data)
-        response = requests.post('http://' + HTTP_ENDPOINT + ':' + HTTP_PORT + PATH, json=json_data)
-        print("HTTP Response:", response.text)
-    except requests.exceptions.RequestException as e:
-        print("HTTP Request Error:", e)
-
-    conn.close()
+try:
+    while True:
+        # Wait for a connection
+        connection, client_address = sock.accept()
+        print(f"Connection from {client_address}")
+        
+        # Keep the connection alive
+        while True:
+            # Receive the data in small chunks
+            data = connection.recv(1024).decode('utf-8')
+            if not data:
+                continue  # If no data, just continue the loop
+            
+            print(f"Received: {data}")
+            
+            # Check if the received message starts with the expected prefix
+            if data.startswith('##,imei:'):
+                # Send the 'LOAD' response to the tracker
+                connection.sendall('LOAD'.encode('utf-8'))
+                print("Sent: LOAD")
+            else:
+                # Forward the message to the HTTP endpoint
+                try:
+                    response = requests.post(http_endpoint, data={'message': data})
+                    print(f"Forwarded to HTTP endpoint, status code: {response.status_code}")
+                except requests.RequestException as e:
+                    print(f"Failed to forward message to HTTP endpoint: {e}")
+            
+except KeyboardInterrupt:
+    print("Server stopped.")
+finally:
+    # Ensure the socket is closed
+    sock.close()
