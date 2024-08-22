@@ -40,9 +40,11 @@ try:
             else:
                 # Forward the message to the HTTP endpoint
                 try:
+                    connection.sendall('OK'.encode('utf-8'))
                     response = requests.post(http_endpoint, data={'message': data})
                     print(f"Forwarded to HTTP endpoint, status code: {response.status_code}")
                 except requests.RequestException as e:
+                    connection.sendall('OK'.encode('utf-8'))
                     print(f"Failed to forward message to HTTP endpoint: {e}")
             
 except KeyboardInterrupt:
