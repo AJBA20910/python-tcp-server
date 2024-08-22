@@ -3,7 +3,7 @@ import requests
 
 # Define the server address and port
 server_address = ('0.0.0.0', 8000)  # Bind to all interfaces on port 8000
-http_endpoint = 'https://react-app-vwyl.onrender.com/gps'  # Replace with your actual HTTP endpoint
+http_endpoint = 'https://spring-boot-app-9ub0.onrender.com/gps'  # Replace with your actual HTTP endpoint
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,7 +35,7 @@ try:
                 if data.startswith('##,imei:') and data.endswith("A;"):
                     connection.sendall('LOAD'.encode('utf-8'))
                     print("Sent: LOAD")
-                elif data == '864035051916097':
+                elif data == '864035051916097;':
                     connection.sendall('ON'.encode('utf-8'))
                     print("Sent: ON")
                 else:
