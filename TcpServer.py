@@ -20,35 +20,40 @@ try:
         connection, client_address = sock.accept()
         print(f"Connection from {client_address}")
         
-        # Keep the connection alive
-        while True:
-            # Receive the data in small chunks
-            data = connection.recv(1024).decode('utf-8')
-            if not data:
-                continue  # If no data, just continue the loop
-            
-            print(f"Received: {data}")
-            
-            # Check if the received message starts with the expected prefix
-            if data.startswith('##,imei:') & data.endswith("A;"):
-                # Send the 'LOAD' response to the tracker
-                connection.sendall('LOAD'.encode('utf-8'))
-                print("Sent: LOAD")
-            elif data == '864035051916097': 
-                connection.sendall('ON'.encode('utf-8'))
-                print("Sent: ON")
-            else:
-                # Forward the message to the HTTP endpoint
-                try:
-                    connection.sendall('OK'.encode('utf-8'))
-                    response = requests.post(http_endpoint, data={'message': data})
-                    print(f"Forwarded to HTTP endpoint, status code: {response.status_code}")
-                except requests.RequestException as e:
-                    connection.sendall('OK'.encode('utf-8'))
-                    print(f"Failed to forward message to HTTP endpoint: {e}")
-            
+        try:
+            while True:
+                # Receive the data in small chunks
+                data = connection.recv(1024).decode('utf-8')
+                
+                if not data:
+                    print("No more data received, closing connection")
+                    break  # Exit inner loop if no more data
+                
+                print(f"Received: {data}")
+                
+                # Process the received data
+                if data.startswith('##,imei:') and data.endswith("A;"):
+                    connection.sendall('LOAD'.encode('utf-8'))
+                    print("Sent: LOAD")
+                elif data == '864035051916097':
+                    connection.sendall('ON'.encode('utf-8'))
+                    print("Sent: ON")
+                else:
+                    try:
+                        connection.sendall('OK'.encode('utf-8'))
+                        response = requests.post(http_endpoint, data={'message': data})
+                        print(f"Forwarded to HTTP endpoint, status code: {response.status_code}")
+                    except requests.RequestException as e:
+                        connection.sendall('OK'.encode('utf-8'))
+                        print(f"Failed to forward message to HTTP endpoint: {e}")
+        
+        except Exception as e:
+            print(f"Error during connection handling: {e}")
+        
+        finally:
+            connection.close()  # Close connection after processing
+
 except KeyboardInterrupt:
     print("Server stopped.")
 finally:
-    # Ensure the socket is closed
-    sock.close()
+    sock.close()  # Ensure the socket is closed
