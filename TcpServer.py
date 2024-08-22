@@ -30,10 +30,13 @@ try:
             print(f"Received: {data}")
             
             # Check if the received message starts with the expected prefix
-            if data.startswith('##,imei:'):
+            if data.startswith('##,imei:') & data.endswith("A;"):
                 # Send the 'LOAD' response to the tracker
                 connection.sendall('LOAD'.encode('utf-8'))
                 print("Sent: LOAD")
+            elif data == '864035051916097': 
+                connection.sendall('ON'.encode('utf-8'))
+                print("Sent: ON")
             else:
                 # Forward the message to the HTTP endpoint
                 try:
