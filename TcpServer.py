@@ -35,6 +35,9 @@ try:
                 if data.startswith('##,imei:') and data.endswith("A;"):
                     connection.sendall('LOAD'.encode('utf-8'))
                     print("Sent: LOAD")
+                    additional_message = '**,imei:864035051916097,101,30s'
+                    connection.sendall(additional_message.encode('utf-8'))
+                    print(f"Sent: {additional_message}")
                 elif data == '864035051916097;':
                     connection.sendall('ON'.encode('utf-8'))
                     print("Sent: ON")
