@@ -3,8 +3,8 @@ import requests
 
 # Define the server address and port
 server_address = ('0.0.0.0', 8000)  # Bind to all interfaces on port 8000
-http_endpoint = 'https://spring-boot-app-9ub0.onrender.com/gps'  # Replace with your actual HTTP endpoint
-
+http_endpoint = 'https://spring-boot-app-1rd0.onrender.com/gps' 
+#http_endpoint = 'http://localhost:8080/gps'
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
